@@ -143,6 +143,7 @@ int main(int argc, char** argv)
     if (verbose)
     {
         std::cerr << "# INFO: # images: " << imageFilenames.size() << std::endl;
+        std::cerr <<" # INFO: useOpenCV for corner detection: " << useOpenCV <<std::endl;
     }
 
     cv::Mat image = cv::imread(imageFilenames.front(), -1);
@@ -171,8 +172,8 @@ int main(int argc, char** argv)
             cv::Mat sketch;
             chessboard.getSketch().copyTo(sketch);
 
-            cv::imshow("Image", sketch);
-            cv::waitKey(50);
+            // cv::imshow("Image", sketch);
+            // cv::waitKey(50);
         }
         else if (verbose)
         {
@@ -180,7 +181,7 @@ int main(int argc, char** argv)
         }
         chessboardFound.at(i) = chessboard.cornersFound();
     }
-    cv::destroyWindow("Image");
+    // cv::destroyWindow("Image");
 
     if (calibration.sampleCount() < 10)
     {
@@ -235,8 +236,8 @@ int main(int argc, char** argv)
             cv::putText(cbImages.at(i), cbImageFilenames.at(i), cv::Point(10,20),
                         cv::FONT_HERSHEY_COMPLEX, 0.5, cv::Scalar(255, 255, 255),
                         1, CV_AA);
-            cv::imshow("Image", cbImages.at(i));
-            cv::waitKey(0);
+            // cv::imshow("Image", cbImages.at(i));
+            // cv::waitKey(0);
         }
     }
 

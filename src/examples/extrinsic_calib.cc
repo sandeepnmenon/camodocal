@@ -227,7 +227,7 @@ main(int argc, char** argv)
                     printf("cannot find input image camera_[d]_[llu].png\n");
                     return 1;
                 }
-                printf("image name : %s time : %ld", it->path().string().c_str(), timestamp);
+                printf("image name : %s time : %ld \n", it->path().string().c_str(), timestamp);
                 inputImages[camera][timestamp] = it->path().string();
             }
 
