@@ -257,6 +257,7 @@ SensorDataBuffer<T>::nearest(uint64_t timestamp, T& dataBefore, T& dataAfter)
 
     if (mBuffer.empty())
     {
+        std::cout << "buffer empty" << std::endl;
         return false;
     }
 
@@ -279,6 +280,7 @@ SensorDataBuffer<T>::nearest(uint64_t timestamp, T& dataBefore, T& dataAfter)
             if (mark == mIndex)
             {
                 // no data after timestamp
+                std::cout << "no data after timestamp" << std::endl;
                 return false;
             }
             else

@@ -290,6 +290,9 @@ CamOdoThread::threadFunction(void)
                         if (timeInSeconds() - timeStart > k_odometryTimeout)
                         {
                             std::cout << "# ERROR: No odometry data for " << k_odometryTimeout << "s. Exiting..." << std::endl;
+                            std::cout<< "# ERROR: timeInSeconds: " << timeInSeconds() << std::endl;
+                            std::cout<< "# ERROR: timeStart: " << timeStart << std::endl;
+                            std::cout<< "# ERROR: time considered for timeout: " << timeInSeconds() - timeStart << std::endl;
                             exit(1);
                         }
 
