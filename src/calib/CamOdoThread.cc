@@ -189,8 +189,8 @@ void
 CamOdoThread::threadFunction(void)
 {
     TemporalFeatureTracker tracker(m_camera,
-                                   ORB_GPU_DETECTOR, ORB_GPU_DESCRIPTOR,
-                                   RATIO_GPU, m_preprocess, m_camOdoTransform);
+                                   ORB_DETECTOR, ORB_DESCRIPTOR,
+                                   RATIO, m_preprocess, m_camOdoTransform);
     tracker.setVerbose(m_camOdoCalib.getVerbose());
 
     FramePtr framePrev;
