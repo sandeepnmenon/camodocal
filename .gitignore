@@ -36,4 +36,4 @@
 build/*
 xcodebuild/*
 
-/data/kitti
+/data/kitti*

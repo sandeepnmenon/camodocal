@@ -227,7 +227,10 @@ main(int argc, char** argv)
                     printf("cannot find input image camera_[d]_[llu].png\n");
                     return 1;
                 }
-                printf("image name : %s time : %ld \n", it->path().string().c_str(), timestamp);
+                if (verbose)
+                {
+                    printf("image name : %s time : %ld \n", it->path().string().c_str(), timestamp);
+                }
                 inputImages[camera][timestamp] = it->path().string();
             }
 
@@ -244,7 +247,10 @@ main(int argc, char** argv)
                 Eigen::Vector3f t;
                 Eigen::Matrix3f R;
                 std::ifstream file(it->path().c_str());
-                std::cout << "pose path : " << it->path().c_str() << std::endl;
+                if(verbose)
+                {
+                    std::cout << "pose path : " << it->path().c_str() << std::endl;
+                }
                 if (!file.is_open())
                 {
                     printf("cannot find file %s containg a valid pose\n", it->path().c_str());
@@ -264,6 +270,13 @@ main(int argc, char** argv)
                 T.matrix().block<3,3>(0,0) = R;
                 T.matrix().block<3,1>(0,3) = t;
                 inputOdometry[timestamp] = T;
+
+                // if(!bUseGPS) {
+                //     std::cout << "pose path : " << it->path().c_str() << std::endl;
+                //     std::cout << "timestamp : " << timestamp << std::endl;
+                //     std::cout << "T : " << T.matrix() << std::endl;
+                //     bUseGPS = true;
+                // }
             }
 
             it++;
