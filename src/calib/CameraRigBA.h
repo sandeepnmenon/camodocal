@@ -8,6 +8,7 @@
 #include <camodocal/calib/CameraCalibration.h>
 #include <camodocal/camera_systems/CameraSystem.h>
 #include <camodocal/sparse_graph/SparseGraph.h>
+#include "../visual_odometry/FeatureTracker.h"
 
 namespace camodocal
 {
@@ -33,6 +34,9 @@ public:
 
     CameraRigBA(CameraSystem& cameraSystem,
                 SparseGraph& graph,
+                DetectorType detectorType,
+                DescriptorType descriptorType,
+                MatchTestType matchTestType,
                 double windowDistance = 3.0);
 
     void run(int beginStage = 1,
@@ -146,7 +150,10 @@ private:
     const size_t k_minWindowCorrespondences2D2D;
     const int k_nearestImageMatches;
     const double k_nominalFocalLength;
-
+    DetectorType m_detectorType;
+    DescriptorType m_descriptorType;
+    MatchTestType m_matchTestType;
+    
     bool m_verbose;
 };
 

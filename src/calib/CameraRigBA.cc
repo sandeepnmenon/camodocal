@@ -45,7 +45,11 @@ namespace camodocal
 
 CameraRigBA::CameraRigBA(CameraSystem& cameraSystem,
                          SparseGraph& graph,
-                         double windowDistance)
+                         DetectorType detectorType,
+                         DescriptorType descriptorType,
+                         MatchTestType matchTestType,
+                         double windowDistance
+                         )
  : m_cameraSystem(cameraSystem)
  , m_graph(graph)
  , k_windowDistance(windowDistance)
@@ -56,6 +60,9 @@ CameraRigBA::CameraRigBA(CameraSystem& cameraSystem,
  , k_minWindowCorrespondences2D2D(8)
  , k_nearestImageMatches(15)
  , k_nominalFocalLength(300.0)
+ , m_detectorType(detectorType)
+ , m_descriptorType(descriptorType)
+ , m_matchTestType(matchTestType)
  , m_verbose(false)
 {
 
@@ -1473,7 +1480,7 @@ CameraRigBA::matchFrameToFrame(FramePtr& frame1, FramePtr& frame2,
         cv::remap(m_cameraSystem.getCamera(cameraId2)->mask(), rmask2, mapX2, mapY2, cv::INTER_NEAREST);
     }
 
-    // TODO: use parameters for feature detection and matching
+    /// @todo: use parameters for feature detection and matching
     bool crossCheck = false;
     cv::Ptr<cv::ORB> orb = cv::ORB::create(1000);
     cv::Ptr<cv::DescriptorMatcher> descriptorMatcher = cv::Ptr<cv::DescriptorMatcher>(new cv::BFMatcher(cv::NORM_HAMMING, crossCheck));
