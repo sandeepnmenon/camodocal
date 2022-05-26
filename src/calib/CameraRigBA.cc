@@ -1473,14 +1473,25 @@ CameraRigBA::matchFrameToFrame(FramePtr& frame1, FramePtr& frame2,
         cv::remap(m_cameraSystem.getCamera(cameraId2)->mask(), rmask2, mapX2, mapY2, cv::INTER_NEAREST);
     }
 
-    cv::Ptr<SurfGPU> surf = SurfGPU::instance(200.0);
+    // TODO: use parameters for feature detection and matching
+    bool crossCheck = false;
+    cv::Ptr<cv::ORB> orb = cv::ORB::create(1000);
+    cv::Ptr<cv::DescriptorMatcher> descriptorMatcher = cv::Ptr<cv::DescriptorMatcher>(new cv::BFMatcher(cv::NORM_HAMMING, crossCheck));
+    // cv::Ptr<SurfGPU> surf = SurfGPU::instance(200.0);
 
     std::vector<cv::KeyPoint> rkeypoints1, rkeypoints2;
     cv::Mat rdtors1, rdtors2;
     std::vector<cv::DMatch> rmatches;
 
-    surf->match(rimg1, rkeypoints1, rdtors1, rmask1,
-                rimg2, rkeypoints2, rdtors2, rmask2, rmatches);
+    // Get orb features
+    orb->detectAndCompute(rimg1, rmask1, rkeypoints1, rdtors1);
+    orb->detectAndCompute(rimg2, rmask2, rkeypoints2, rdtors2);
+
+    // March orb features
+    descriptorMatcher->match(rdtors1, rdtors2, rmatches);
+
+    // surf->match(rimg1, rkeypoints1, rdtors1, rmask1,
+    //             rimg2, rkeypoints2, rdtors2, rmask2, rmatches);
 
     if (rmatches.size() < k_minWindowCorrespondences2D2D)
     {
