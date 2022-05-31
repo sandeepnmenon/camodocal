@@ -37,3 +37,4 @@ build/*
 xcodebuild/*
 
 /data/kitti*
+.vscode/
