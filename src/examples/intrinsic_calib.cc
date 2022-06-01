@@ -181,7 +181,7 @@ int main(int argc, char** argv)
         }
         chessboardFound.at(i) = chessboard.cornersFound();
     }
-    // cv::destroyWindow("Image");
+    cv::destroyWindow("Image");
 
     if (calibration.sampleCount() < 10)
     {

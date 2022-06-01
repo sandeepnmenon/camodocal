@@ -208,7 +208,6 @@ main(int argc, char** argv)
     std::vector< ImageMap > inputImages(cameraCount);
     IsometryMap inputOdometry;
     bool bUseGPS = false;
-    bool temp_flag = true;
     if (eventFile.length() == 0)
     {
         printf("Get images and pose files out from result directory\n");
@@ -273,13 +272,6 @@ main(int argc, char** argv)
                 T.matrix().block<3,3>(0,0) = R;
                 T.matrix().block<3,1>(0,3) = t;
                 inputOdometry[timestamp] = T;
-
-                // if(temp_flag) {
-                //     std::cout << "pose path : " << it->path().c_str() << std::endl;
-                //     std::cout << "timestamp : " << timestamp << std::endl;
-                //     std::cout << "T : " << T.matrix() << std::endl;
-                //     temp_flag = false;
-                // }
             }
 
             it++;
