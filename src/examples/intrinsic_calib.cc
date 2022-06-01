@@ -172,8 +172,8 @@ int main(int argc, char** argv)
             cv::Mat sketch;
             chessboard.getSketch().copyTo(sketch);
 
-            // cv::imshow("Image", sketch);
-            // cv::waitKey(50);
+            cv::imshow("Image", sketch);
+            cv::waitKey(50);
         }
         else if (verbose)
         {
@@ -236,8 +236,8 @@ int main(int argc, char** argv)
             cv::putText(cbImages.at(i), cbImageFilenames.at(i), cv::Point(10,20),
                         cv::FONT_HERSHEY_COMPLEX, 0.5, cv::Scalar(255, 255, 255),
                         1, CV_AA);
-            // cv::imshow("Image", cbImages.at(i));
-            // cv::waitKey(0);
+            cv::imshow("Image", cbImages.at(i));
+            cv::waitKey(0);
         }
     }
 

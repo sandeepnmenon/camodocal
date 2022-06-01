@@ -173,12 +173,12 @@ CamRigOdoCalibration::start(void)
         boost::asio::deadline_timer timer(io, boost::posix_time::milliseconds(100));
         bool closeWindow = false;
 
-        // for (size_t i = 0; i < m_cameras.size(); ++i)
-        // {
-        //     cv::namedWindow(m_cameras.at(i)->cameraName());
-        // }
+        for (size_t i = 0; i < m_cameras.size(); ++i)
+        {
+            cv::namedWindow(m_cameras.at(i)->cameraName());
+        }
 
-        // timer.async_wait(boost::bind(&CamRigOdoCalibration::displayHandler, this, &timer, &closeWindow));
+        timer.async_wait(boost::bind(&CamRigOdoCalibration::displayHandler, this, &timer, &closeWindow));
 
         boost::thread windowThread(boost::bind(&CamRigOdoCalibration::pollWindow, this, &io, &closeWindow));
 
@@ -201,10 +201,10 @@ CamRigOdoCalibration::start(void)
         closeWindow = true;
         windowThread.join();
 
-        // for (size_t i = 0; i < m_cameras.size(); ++i)
-        // {
-        //     cv::destroyWindow(m_cameras.at(i)->cameraName());
-        // }
+        for (size_t i = 0; i < m_cameras.size(); ++i)
+        {
+            cv::destroyWindow(m_cameras.at(i)->cameraName());
+        }
 
         buildGraph();
 
