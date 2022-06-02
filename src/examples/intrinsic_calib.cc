@@ -162,18 +162,17 @@ int main(int argc, char** argv)
         chessboard.findCorners(useOpenCV);
         if (chessboard.cornersFound())
         {
+            calibration.addChessboardData(chessboard.getCorners());
+
             if (verbose)
             {
                 std::cerr << "# INFO: Detected chessboard in image " << i + 1 << std::endl;
+                cv::Mat sketch;
+                chessboard.getSketch().copyTo(sketch);
+
+                cv::imshow("Image", sketch);
+                cv::waitKey(50);
             }
-
-            calibration.addChessboardData(chessboard.getCorners());
-
-            cv::Mat sketch;
-            chessboard.getSketch().copyTo(sketch);
-
-            cv::imshow("Image", sketch);
-            cv::waitKey(50);
         }
         else if (verbose)
         {
@@ -181,8 +180,10 @@ int main(int argc, char** argv)
         }
         chessboardFound.at(i) = chessboard.cornersFound();
     }
-    cv::destroyWindow("Image");
-
+    if (verbose)
+    {
+        cv::destroyWindow("Image");
+    }
     if (calibration.sampleCount() < 10)
     {
         std::cerr << "# ERROR: Insufficient number of detected chessboards." << std::endl;
