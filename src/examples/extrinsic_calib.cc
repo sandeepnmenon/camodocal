@@ -52,7 +52,6 @@ main(int argc, char** argv)
     float refCameraGroundHeight;
     float keyframeDistance;
     std::string eventFile;
-    int skipFrameCount;
 
     //================= Handling Program options ==================
     boost::program_options::options_description desc("Allowed options");
@@ -72,7 +71,6 @@ main(int argc, char** argv)
         ("event", boost::program_options::value<std::string>(&eventFile)->default_value(std::string("")), "Event log file to be used for frame and pose events.")
         ("ref-height", boost::program_options::value<float>(&refCameraGroundHeight)->default_value(0), "Height of the reference camera (cam=0) above the ground (cameras extrinsics will be relative to the reference camera)")
         ("keydist", boost::program_options::value<float>(&keyframeDistance)->default_value(0.4), "Distance of rig to be traveled before taking a keyframe (distance is measured by means of odometry poses)")
-        ("skip-frame-count", boost::program_options::value<int>(&skipFrameCount)->default_value(0), "Number of initial frames to skip")
         ("verbose,v", boost::program_options::bool_switch(&verbose)->default_value(false), "Verbose output")
         ;
     boost::program_options::variables_map vm;
@@ -229,10 +227,7 @@ main(int argc, char** argv)
                     printf("cannot find input image camera_[d]_[llu].png\n");
                     return 1;
                 }
-                if (verbose)
-                {
-                    printf("image name : %s time : %ld \n", it->path().string().c_str(), timestamp);
-                }
+                printf("image name : %s time : %ld", it->path().string().c_str(), timestamp);
                 inputImages[camera][timestamp] = it->path().string();
             }
 
@@ -249,10 +244,7 @@ main(int argc, char** argv)
                 Eigen::Vector3f t;
                 Eigen::Matrix3f R;
                 std::ifstream file(it->path().c_str());
-                if(verbose)
-                {
-                    std::cout << "pose path : " << it->path().c_str() << std::endl;
-                }
+                std::cout << "pose path : " << it->path().c_str() << std::endl;
                 if (!file.is_open())
                 {
                     printf("cannot find file %s containg a valid pose\n", it->path().c_str());
@@ -324,22 +316,6 @@ main(int argc, char** argv)
                 bUseGPS = true;
             }
         }
-    }
-
-    // Remove first few timestamps as per skipFrameCount for each camera from inputImages
-    for (int i = 0; i < cameraCount; i++)
-    {
-        std::cout<<"camera "<<i<<" has "<<inputImages[i].size()<<" images"<<std::endl;
-        ImageMap::iterator it = inputImages[i].begin();
-        for (int j = 0; j < skipFrameCount; j++)
-        {
-            it = inputImages[i].erase(it);
-        }
-    }
-    
-    for (int i = 0; i < cameraCount; i++)
-    {
-        std::cout<<"[after removal] camera "<<i<<" has "<<inputImages[i].size()<<" images"<<std::endl;
     }
 
     //========================= Start Threads =========================
