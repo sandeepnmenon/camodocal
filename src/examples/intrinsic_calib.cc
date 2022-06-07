@@ -59,6 +59,9 @@ int main(int argc, char** argv)
         std::cerr << "# ERROR: Cannot find input directory " << inputDir << "." << std::endl;
         return 1;
     }
+    // Add trailing slash to inputDir
+    if(inputDir.back() != '/')
+        inputDir += "/";
 
     camodocal::Camera::ModelType modelType;
     if (boost::iequals(cameraModel, "kannala-brandt"))
@@ -189,6 +192,10 @@ int main(int argc, char** argv)
         std::cerr << "# ERROR: Insufficient number of detected chessboards." << std::endl;
         return 1;
     }
+    else
+    {
+        std::cout << "# INFO: Chessboard detected in samples: " << calibration.sampleCount() << std::endl;
+    }
 
     if (verbose)
     {
@@ -198,8 +205,8 @@ int main(int argc, char** argv)
     double startTime = camodocal::timeInSeconds();
 
     calibration.calibrate();
-    calibration.writeParams(cameraName + "_camera_calib.yaml");
-    calibration.writeChessboardData(cameraName + "_chessboard_data.dat");
+    calibration.writeParams(inputDir + cameraName + "_camera_calib.yaml");
+    calibration.writeChessboardData(inputDir + cameraName + "_chessboard_data.dat");
 
     if (verbose)
     {
