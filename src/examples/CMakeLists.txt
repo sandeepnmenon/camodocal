@@ -41,6 +41,18 @@ camodocal_link_libraries(extrinsic_calib
   camodocal_calib
 )
 
+camodocal_executable(extrinsic_calib_custom
+  extrinsic_calib_custom.cc
+)
+
+camodocal_link_libraries(extrinsic_calib_custom
+  ${CAMODOCAL_PLATFORM_UNIX_LIBRARIES}
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+  camodocal_calib
+)
+
 endif(CAMODOCAL_CALIB_FOUND AND OpenCV_FOUND AND HAVE_OPENCV_XFEATURES2D_NONFREE)
 
 if(OpenCV_FOUND)

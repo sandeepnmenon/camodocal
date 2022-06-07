@@ -52,6 +52,8 @@ main(int argc, char** argv)
     float refCameraGroundHeight;
     float keyframeDistance;
     std::string eventFile;
+    std::string inscsvFile;
+    int skipFrameCount;
 
     //================= Handling Program options ==================
     boost::program_options::options_description desc("Allowed options");
@@ -69,8 +71,10 @@ main(int argc, char** argv)
         ("data", boost::program_options::value<std::string>(&dataDir)->default_value("data"), "Location of folder which contains working data.")
         ("input", boost::program_options::value<std::string>(&inputDir)->default_value("input"), "Location of the folder containing all input data. Files must be named camera_%02d_%05d.png. In case if event file is specified, this is the path where to find frame_X/ subfolders")
         ("event", boost::program_options::value<std::string>(&eventFile)->default_value(std::string("")), "Event log file to be used for frame and pose events.")
+        ("ins-file", boost::program_options::value<std::string>(&inscsvFile)->default_value(std::string("")), "Event log file to be used for frame and pose events.")
         ("ref-height", boost::program_options::value<float>(&refCameraGroundHeight)->default_value(0), "Height of the reference camera (cam=0) above the ground (cameras extrinsics will be relative to the reference camera)")
         ("keydist", boost::program_options::value<float>(&keyframeDistance)->default_value(0.4), "Distance of rig to be traveled before taking a keyframe (distance is measured by means of odometry poses)")
+        ("skip-frame-count", boost::program_options::value<int>(&skipFrameCount)->default_value(0), "Number of initial frames to skip")
         ("verbose,v", boost::program_options::bool_switch(&verbose)->default_value(false), "Verbose output")
         ;
     boost::program_options::variables_map vm;
@@ -227,11 +231,14 @@ main(int argc, char** argv)
                     printf("cannot find input image camera_[d]_[llu].png\n");
                     return 1;
                 }
-                printf("image name : %s time : %ld", it->path().string().c_str(), timestamp);
+                if (verbose)
+                {
+                    printf("image name : %s time : %ld \n", it->path().string().c_str(), timestamp);
+                }
                 inputImages[camera][timestamp] = it->path().string();
             }
 
-            if (fs::is_regular_file(*it) && it->path().extension() == ".txt" && it->path().filename().string().find_first_of("pose_") == 0)
+            if (inscsvFile.length() ==0 && fs::is_regular_file(*it) && it->path().extension() == ".txt" && it->path().filename().string().find_first_of("pose_") == 0)
             {
                 uint64_t timestamp = 0;
                 if (sscanf(it->path().filename().c_str(), "pose_%lu.txt", &timestamp) != 1)
@@ -244,7 +251,10 @@ main(int argc, char** argv)
                 Eigen::Vector3f t;
                 Eigen::Matrix3f R;
                 std::ifstream file(it->path().c_str());
-                std::cout << "pose path : " << it->path().c_str() << std::endl;
+                if(verbose)
+                {
+                    std::cout << "pose path : " << it->path().c_str() << std::endl;
+                }
                 if (!file.is_open())
                 {
                     printf("cannot find file %s containg a valid pose\n", it->path().c_str());
@@ -267,6 +277,55 @@ main(int argc, char** argv)
             }
 
             it++;
+        }
+
+        if(inscsvFile.length() != 0)
+        {
+            // Read INS CSV file
+            // Headers are as follows
+            // timestamp	ins_status	latitude	longitude	altitude	northing	easting	down	utm_zone	velocity_north	velocity_east	velocity_down	roll	pitch	yaw
+            std::ifstream file(inscsvFile);
+            if (file.is_open())
+            {
+                std::string line;
+                while(getline(file, line))
+                {
+                    // skip header
+                    if (line.find("timestamp") != std::string::npos)
+                    {
+                        continue;
+                    }
+                    std::vector<std::string> strs;
+                    boost::split(strs, line, boost::is_any_of(","));
+                    if (strs.size() != 15)
+                    {
+                        printf("cannot find valid INS data in file %s\n", inscsvFile.c_str());
+                        return 1;
+                    }
+
+                    uint64_t timestamp = std::stoull(strs[0]);
+                    Eigen::Vector3f t;
+                    t[0] = std::stof(strs[5]);
+                    t[1] = std::stof(strs[6]);
+                    t[2] = std::stof(strs[7]);
+                    
+                    float roll = std::stof(strs[12]);
+                    float pitch = std::stof(strs[13]);
+                    float yaw = std::stof(strs[14]);
+
+                    // Convert euler angles to rotation matrix
+                    Eigen::Matrix3f R;
+                    Eigen::AngleAxisf rollAngle(roll, Eigen::Vector3f::UnitX());
+                    Eigen::AngleAxisf pitchAngle(pitch, Eigen::Vector3f::UnitY());
+                    Eigen::AngleAxisf yawAngle(yaw, Eigen::Vector3f::UnitZ());
+                    R = yawAngle * pitchAngle * rollAngle;
+
+                    Eigen::Isometry3f T;
+                    T.matrix().block<3,3>(0,0) = R;
+                    T.matrix().block<3,1>(0,3) = t;
+                    inputOdometry[timestamp] = T;
+                }
+            }
         }
     }else
     {
@@ -316,6 +375,22 @@ main(int argc, char** argv)
                 bUseGPS = true;
             }
         }
+    }
+
+    // Remove first few timestamps as per skipFrameCount for each camera from inputImages
+    for (int i = 0; i < cameraCount; i++)
+    {
+        std::cout<<"camera "<<i<<" has "<<inputImages[i].size()<<" images"<<std::endl;
+        ImageMap::iterator it = inputImages[i].begin();
+        for (int j = 0; j < skipFrameCount; j++)
+        {
+            it = inputImages[i].erase(it);
+        }
+    }
+    
+    for (int i = 0; i < cameraCount; i++)
+    {
+        std::cout<<"[after removal] camera "<<i<<" has "<<inputImages[i].size()<<" images"<<std::endl;
     }
 
     //========================= Start Threads =========================
