@@ -229,6 +229,11 @@ main(int argc, char** argv)
                     printf("cannot find input image camera_[d]_[llu].png\n");
                     return 1;
                 }
+                if(camera >= cameraCount)
+                {
+                    it++;
+                    continue;
+                }
                 if (verbose)
                 {
                     printf("image name : %s time : %ld \n", it->path().string().c_str(), timestamp);

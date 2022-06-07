@@ -129,7 +129,7 @@ private:
 
     bool validateGraph(void) const;
 
-    void dumpPointCloud(const std::string& dir, bool dumpPoses = false);
+    void dumpPointCloud(const std::string& dir, bool dumpPoses = true);
 
     typedef struct
     {
